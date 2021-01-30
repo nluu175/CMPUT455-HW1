@@ -220,8 +220,6 @@ class GtpConnection:
         return
         """
         # IF GAME IS OVER, RETURN EMPTY LIST
-
-
         color = self.board.current_player
         moves = GoBoardUtil.generate_legal_moves(self.board, color)
         gtp_moves = []
@@ -259,7 +257,8 @@ class GtpConnection:
             
     def gogui_rules_final_result_cmd(self, args):
         """ Implement this function for Assignment 1 """
-        self.respond("unknown")
+        state = self.board.win_check()
+        self.respond(state)
 
     def play_cmd(self, args):
         """ Modify this function for Assignment 1 """
@@ -306,12 +305,18 @@ class GtpConnection:
         move = self.go_engine.get_move(self.board, color)
         move_coord = point_to_coord(move, self.board.size)
         move_as_string = format_point(move_coord)
-        
-        if self.board.is_legal(move, color):
-            self.board.play_move(move, color)
-            self.respond(move_as_string)
+
+        state = self.board.win_check()
+        if (state == "black") or (state == "white"):
+            self.respond("resign")
+        elif (state == "draw"):
+            self.respond("resign")
         else:
-            self.respond("Illegal move: {}".format(move_as_string))
+            if self.board.is_legal(move, color):
+                self.board.play_move(move, color)
+                self.respond(move_as_string)
+            else:
+                self.respond("Illegal move: {}".format(move_as_string))
 
     """
     ==========================================================================

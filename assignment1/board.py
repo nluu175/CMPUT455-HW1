@@ -203,7 +203,101 @@ class GoBoard(object):
             return False
         else:
             self.board[point] = color
-            return True
+
+        self.current_player = GoBoardUtil.opponent(color)
+        self.last_move = point
+        return True
+
+    def row_check(self, color):
+        """Check if the row of the given point has 5 neighbors"""
+
+        for row in range(1, self.NS): 
+            for col in range(self.size-4):
+                pieces = 0
+                for piece in range(5):
+                    if self.board[self.NS*row+1+col+piece] == color:
+                        pieces += 1
+                    else:
+                        break
+
+                    if pieces == 5:
+                        return True
+        return False
+    
+    def col_check(self, color):
+        """Check if the column of the given point has 5 neighbors"""
+        for col in range(1, self.NS):
+            for row in range(1, self.size-3):
+                pieces = 0
+                for piece in range(5):
+                    if self.board[self.NS*(row+piece)+col] == color:
+                        pieces += 1
+                    else: 
+                        break
+
+                    if pieces == 5:
+                        return True
+        return False
+
+    def diag_left_check(self, color):
+        """Check if the diagonal has 5 points of the same color"""
+        diag_head = []
+        for row in range(1, self.NS-4):
+            for col in range(1, self.NS-4):
+                diag_head.append(self.NS*row+col)
+
+        for point in diag_head:
+            pieces = 0
+            for piece in range(5):
+                if self.board[point+(self.NS+1)*piece] == color:
+                    pieces += 1
+                else:
+                    break
+
+                if pieces == 5:
+                    return True
+        return False
+
+    def diag_right_check(self, color):
+        """Check if the diagonal has 5 points of the same color"""
+        diag_head = []
+        for row in range(1, self.NS-4):
+            for col in range(1, self.NS-4):
+                diag_head.append(self.NS*row+(self.NS-col))
+
+        for point in diag_head:
+            pieces = 0
+            for piece in range(5):
+                if self.board[point+(self.NS-1)*piece] == color:
+                    pieces += 1
+                else:
+                    break
+
+                if pieces == 5:
+                    return True
+        return False
+
+    def win_check(self):
+        colors = [BLACK, WHITE]
+        winner = None
+        for color in colors:
+            row_check = self.row_check(color)
+            col_check = self.col_check(color)
+            diag_left_check = self.diag_left_check(color)
+            diag_right_check = self.diag_right_check(color)
+            if row_check or col_check or diag_left_check or diag_right_check:
+                winner = color
+        if winner == BLACK:
+            state = "black"
+        elif winner == WHITE:
+            state = "white"
+        else:
+            if len(self.get_empty_points()) == 0:
+                state = "draw"
+            else:
+                state = "unknown"
+
+        return state
 
     def neighbors_of_color(self, point, color):
         """ List of neighbors of point of given color """
