@@ -320,6 +320,28 @@ class GoBoard(object):
                     return True
         return False
 
+    def win_check(self):
+        colors = [BLACK, WHITE]
+        winner = None
+        for color in colors:
+            row_check = self.row_check(color)
+            col_check = self.col_check(color)
+            diag_left_check = self.diag_left_check(color)
+            diag_right_check = self.diag_right_check(color)
+            if row_check or col_check or diag_left_check or diag_right_check:
+                winner = color
+        if winner == BLACK:
+            state = "black"
+        elif winner == WHITE:
+            state = "white"
+        else:
+            if len(self.get_empty_points()) == 0:
+                state = "draw"
+            else:
+                state = "unknown"
+        
+        return state
+
     def neighbors_of_color(self, point, color):
         """ List of neighbors of point of given color """
         nbc = []
