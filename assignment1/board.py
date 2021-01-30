@@ -199,19 +199,21 @@ class GoBoard(object):
         """
         assert is_black_white(color)
         # Special cases
-        if point == PASS:
+        '''if point == PASS:
             self.ko_recapture = None
             self.current_player = GoBoardUtil.opponent(color)
             self.last2_move = self.last_move
             self.last_move = point
-            return True
-        elif self.board[point] != EMPTY:
+            return True'''
+        if self.board[point] != EMPTY:
             return False
-        if point == self.ko_recapture:
-            return False
+        else:
+            self.board[point] = color
+        #if point == self.ko_recapture:
+        #    return False
 
         # General case: deal with captures, suicide, and next ko point
-        opp_color = GoBoardUtil.opponent(color)
+        '''opp_color = GoBoardUtil.opponent(color)
         in_enemy_eye = self._is_surrounded(point, opp_color)
         self.board[point] = color
         single_captures = []
@@ -227,11 +229,96 @@ class GoBoard(object):
             return False
         self.ko_recapture = None
         if in_enemy_eye and len(single_captures) == 1:
-            self.ko_recapture = single_captures[0]
+            self.ko_recapture = single_captures[0]'''
         self.current_player = GoBoardUtil.opponent(color)
-        self.last2_move = self.last_move
+        #self.last2_move = self.last_move
         self.last_move = point
         return True
+
+    def row_check(self, color):
+        """Check if the row of the given point has 5 neighbors"""
+        '''temp = self.last_move
+        count = 1
+
+        while temp+1 != BORDER and temp+1 == color:
+            count+=1
+            temp+=1
+        if count < 5:
+            temp = self.last_move
+            while temp-1 != BORDER and temp-1 == color:
+                count+=1
+                temp-=1
+            if count >= 5:
+                return True
+        else:
+            return True
+        return False'''
+
+        for row in range(1, self.NS): 
+            for col in range(self.size-4):
+                pieces = 0
+                for piece in range(5):
+                    if self.board[self.NS*row+1+col+piece] == color:
+                        pieces += 1
+                    else:
+                        break
+                        
+                    if pieces == 5:
+                        return True
+        return False
+
+    def col_check(self, color):
+        """Check if the column of the given point has 5 neighbors"""
+        for col in range(1, self.NS):
+            for row in range(1, self.size-3):
+                pieces = 0
+                for piece in range(5):
+                    if self.board[self.NS*(row+piece)+col] == color:
+                        pieces += 1
+                    else: 
+                        break
+
+                    if pieces == 5:
+                        return True
+        return False
+
+    def diag_left_check(self, color):
+        """Check if the diagonal has 5 points of the same color"""
+        diag_head = []
+        for row in range(1, self.NS-4):
+            for col in range(1, self.NS-4):
+                diag_head.append(self.NS*row+col)
+
+        for point in diag_head:
+            pieces = 0
+            for piece in range(5):
+                if self.board[point+(self.NS+1)*piece] == color:
+                    pieces += 1
+                else:
+                    break
+
+                if pieces == 5:
+                    return True
+        return False
+
+    def diag_right_check(self, color):
+        """Check if the diagonal has 5 points of the same color"""
+        diag_head = []
+        for row in range(1, self.NS-4):
+            for col in range(1, self.NS-4):
+                diag_head.append(self.NS*row+(self.NS-col))
+
+        for point in diag_head:
+            pieces = 0
+            for piece in range(5):
+                if self.board[point+(self.NS-1)*piece] == color:
+                    pieces += 1
+                else:
+                    break
+
+                if pieces == 5:
+                    return True
+        return False
 
     def neighbors_of_color(self, point, color):
         """ List of neighbors of point of given color """

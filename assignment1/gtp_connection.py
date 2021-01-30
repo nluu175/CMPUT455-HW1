@@ -239,7 +239,29 @@ class GtpConnection:
             
     def gogui_rules_final_result_cmd(self, args):
         """ Implement this function for Assignment 1 """
-        self.respond("unknown")
+        colors = [BLACK, WHITE]
+        win = "None"
+        winner = None
+        for color in colors:
+            row_check = self.board.row_check(color)
+            col_check = self.board.col_check(color)
+            diag_left_check = self.board.diag_left_check(color)
+            diag_right_check = self.board.diag_right_check(color)
+            if row_check or col_check or diag_left_check or diag_right_check:
+                winner = color
+        if winner == BLACK:
+            self.respond("black")
+            win = "black"
+        elif winner == WHITE:
+            self.respond("white")
+            win = "white"
+        else:
+            if len(self.board.get_empty_points()) == 0:
+                self.respond("draw")
+            else:
+                self.respond("unknown")
+        
+        return win
 
     def play_cmd(self, args):
         """ Modify this function for Assignment 1 """
