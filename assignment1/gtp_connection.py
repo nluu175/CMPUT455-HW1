@@ -209,8 +209,28 @@ class GtpConnection:
 
     def gogui_rules_legal_moves_cmd(self, args):
         """ Implement this function for Assignment 1 """
-        self.respond()
+
+        """
+        int_list = self.board.get_empty_points()
+        NS = self.board.NS
+        for index, move in enumerate(int_list):             # normalize the points
+            int_list[index] = (move % NS) + (move // NS - 1) * self.board.size
+
+        self.respond(int_list)
         return
+        """
+        # IF GAME IS OVER, RETURN EMPTY LIST
+
+
+        color = self.board.current_player
+        moves = GoBoardUtil.generate_legal_moves(self.board, color)
+        gtp_moves = []
+        for move in moves:
+            coords = point_to_coord(move, self.board.size)
+            gtp_moves.append(format_point(coords))
+        sorted_moves = " ".join(sorted(gtp_moves))
+        self.respond(sorted_moves)
+        return sorted_moves
 
     def gogui_rules_side_to_move_cmd(self, args):
         """ We already implemented this function for Assignment 1 """
@@ -245,30 +265,29 @@ class GtpConnection:
         """ Modify this function for Assignment 1 """
         """
         play a move args[1] for given color args[0] in {'b','w'}
-        
-        # notes:
-        args[0] = color
-        args[1] = move, move can be pass or a position, but we don't do PASS here in GOMOKU
         """
         try:
             board_color = args[0].lower()
+
+            if (((board_color != 'b')) and ((board_color != 'w'))):         # wrong color
+                self.respond("Illegal Move: - \"{}\" wrong color".format(args[0]))
+                return
+
             board_move = args[1]
             color = color_to_int(board_color)
-            if args[1].lower() == "pass":
-                self.board.play_move(PASS, color)
-                self.board.current_player = GoBoardUtil.opponent(color)
-                self.respond()
-                return
-            coord = move_to_coord(args[1], self.board.size)
+
+            coord = move_to_coord(args[1], self.board.size)     # convert move (eg. a1) to (row, col) coordinate
+
             if coord:
-                move = coord_to_point(coord[0], coord[1], self.board.size)
+                move = coord_to_point(coord[0], coord[1], self.board.size)          # convert (row, col) coordinate to array index
             else:
                 self.error(
                     "Error executing move {} converted from {}".format(move, args[1])
                 )
                 return
-            if not self.board.play_move(move, color):
-                self.respond("Illegal Move: {}".format(board_move))
+
+            if not self.board.play_move(move, color):           # occupied
+                self.respond("Illegal Move: - \"{}\" occupied".format(args[1]))
                 return
             else:
                 self.debug_msg(
@@ -276,16 +295,18 @@ class GtpConnection:
                 )
             self.respond()
         except Exception as e:
-            self.respond("Error: {}".format(str(e)))
+            self.respond("{}".format(str(e)))
 
     def genmove_cmd(self, args):
         """ Modify this function for Assignment 1 """
         """ generate a move for color args[0] in {'b','w'} """
         board_color = args[0].lower()
         color = color_to_int(board_color)
+
         move = self.go_engine.get_move(self.board, color)
         move_coord = point_to_coord(move, self.board.size)
         move_as_string = format_point(move_coord)
+        
         if self.board.is_legal(move, color):
             self.board.play_move(move, color)
             self.respond(move_as_string)
@@ -387,9 +408,9 @@ def move_to_coord(point_str, board_size):
         if row < 1:
             raise ValueError
     except (IndexError, ValueError):
-        raise ValueError("invalid point: '{}'".format(s))
+        raise ValueError("Illegal move: \"{}\" wrong coordinate".format(s))
     if not (col <= board_size and row <= board_size):
-        raise ValueError("point off board: '{}'".format(s))
+        raise ValueError("Illegal move: \"{}\" wrong coordinate".format(s))
     return row, col
 
 
@@ -397,3 +418,4 @@ def color_to_int(c):
     """convert character to the appropriate integer code"""
     color_to_int = {"b": BLACK, "w": WHITE, "e": EMPTY, "BORDER": BORDER}
     return color_to_int[c]
+
