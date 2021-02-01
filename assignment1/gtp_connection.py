@@ -219,10 +219,14 @@ class GtpConnection:
         self.respond(int_list)
         return
         """
-        # IF GAME IS OVER, RETURN EMPTY LIST
+        gtp_moves = []
+
+        # if the game is over, return empty list (aka state = "unknown")
+        state = self.board.win_check()
+        if (state != "unknown"):
+            return gtp_moves
         color = self.board.current_player
         moves = GoBoardUtil.generate_legal_moves(self.board, color)
-        gtp_moves = []
         for move in moves:
             coords = point_to_coord(move, self.board.size)
             gtp_moves.append(format_point(coords))
