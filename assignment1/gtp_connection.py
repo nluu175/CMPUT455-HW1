@@ -224,6 +224,7 @@ class GtpConnection:
         # if the game is over, return empty list (aka state = "unknown")
         state = self.board.win_check()
         if (state != "unknown"):
+            self.respond(gtp_moves)
             return gtp_moves
         else:
             color = self.board.current_player
