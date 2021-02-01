@@ -225,14 +225,15 @@ class GtpConnection:
         state = self.board.win_check()
         if (state != "unknown"):
             return gtp_moves
-        color = self.board.current_player
-        moves = GoBoardUtil.generate_legal_moves(self.board, color)
-        for move in moves:
-            coords = point_to_coord(move, self.board.size)
-            gtp_moves.append(format_point(coords))
-        sorted_moves = " ".join(sorted(gtp_moves))
-        self.respond(sorted_moves)
-        return sorted_moves
+        else:
+            color = self.board.current_player
+            moves = GoBoardUtil.generate_legal_moves(self.board, color)
+            for move in moves:
+                coords = point_to_coord(move, self.board.size)
+                gtp_moves.append(format_point(coords))
+            sorted_moves = " ".join(sorted(gtp_moves))
+            self.respond(sorted_moves)
+            return sorted_moves
 
     def gogui_rules_side_to_move_cmd(self, args):
         """ We already implemented this function for Assignment 1 """
@@ -273,7 +274,7 @@ class GtpConnection:
             board_color = args[0].lower()
 
             if (((board_color != 'b')) and ((board_color != 'w'))):         # wrong color
-                self.respond("Illegal Move: - \"{}\" wrong color".format(args[0]))
+                self.respond("illegal move: \"{}\" wrong color".format(args[0]))
                 return
 
             board_move = args[1]
@@ -290,7 +291,7 @@ class GtpConnection:
                 return
 
             if not self.board.play_move(move, color):           # occupied
-                self.respond("Illegal Move: - \"{}\" occupied".format(args[1]))
+                self.respond("illegal move: \"{}\" occupied".format(args[1]))
                 return
             else:
                 self.debug_msg(
@@ -417,9 +418,9 @@ def move_to_coord(point_str, board_size):
         if row < 1:
             raise ValueError
     except (IndexError, ValueError):
-        raise ValueError("Illegal move: \"{}\" wrong coordinate".format(s))
+        raise ValueError("illegal move: \"{}\" wrong coordinate".format(s))
     if not (col <= board_size and row <= board_size):
-        raise ValueError("Illegal move: \"{}\" wrong coordinate".format(s))
+        raise ValueError("ilegal move: \"{}\" wrong coordinate".format(s))
     return row, col
 
 
