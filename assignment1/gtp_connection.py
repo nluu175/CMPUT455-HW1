@@ -316,7 +316,7 @@ class GtpConnection:
         if (state == "black") or (state == "white"):
             self.respond("resign")
         elif (state == "draw"):
-            self.respond("resign")
+            self.respond("pass")
         else:
             if self.board.is_legal(move, color):
                 self.board.play_move(move, color)
