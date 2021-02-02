@@ -209,22 +209,12 @@ class GtpConnection:
 
     def gogui_rules_legal_moves_cmd(self, args):
         """ Implement this function for Assignment 1 """
-
-        """
-        int_list = self.board.get_empty_points()
-        NS = self.board.NS
-        for index, move in enumerate(int_list):             # normalize the points
-            int_list[index] = (move % NS) + (move // NS - 1) * self.board.size
-
-        self.respond(int_list)
-        return
-        """
         gtp_moves = []
 
         # if the game is over, return empty list (aka state = "unknown")
         state = self.board.win_check()
         if (state != "unknown"):
-            self.respond(gtp_moves)
+            self.respond("")
             return gtp_moves
         else:
             color = self.board.current_player
@@ -232,8 +222,9 @@ class GtpConnection:
             for move in moves:
                 coords = point_to_coord(move, self.board.size)
                 gtp_moves.append(format_point(coords))
-            sorted_moves = " ".join(sorted(gtp_moves))
-            self.respond(sorted_moves)
+            sorted_moves = sorted(gtp_moves)
+            sorted_moves = [each_move.lower() for each_move in sorted_moves]
+            self.respond(" ".join(sorted_moves))
             return sorted_moves
 
     def gogui_rules_side_to_move_cmd(self, args):
@@ -275,7 +266,7 @@ class GtpConnection:
             board_color = args[0].lower()
 
             if (((board_color != 'b')) and ((board_color != 'w'))):         # wrong color
-                self.respond("illegal move: \"{}\" wrong color".format(args[0]))
+                self.respond("illegal move: \"{}\" wrong color".format(args[0].lower()))
                 return
 
             board_move = args[1]
@@ -292,7 +283,7 @@ class GtpConnection:
                 return
 
             if not self.board.play_move(move, color):           # occupied
-                self.respond("illegal move: \"{}\" occupied".format(args[1]))
+                self.respond("illegal move: \"{}\" occupied".format(args[1].lower()))
                 return
             else:
                 self.debug_msg(
@@ -320,7 +311,7 @@ class GtpConnection:
         else:
             if self.board.is_legal(move, color):
                 self.board.play_move(move, color)
-                self.respond(move_as_string)
+                self.respond(move_as_string.lower())
             else:
                 self.respond("Illegal move: {}".format(move_as_string))
 
